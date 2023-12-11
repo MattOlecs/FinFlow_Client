@@ -1,13 +1,21 @@
+main {
+    padding: 20px;
+    margin-left: 5%;
+    margin-right: 5%;
+    margin-top: auto;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+}
+
 .grid-container {
     display: grid;
     /* grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); */
     grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
     gap: 20px;
-    padding: 20px;
     text-align: left;
-    margin-left: 5%;
-    margin-right: 5%;
-    margin-top: auto;
 }
 
 .chart-container {
@@ -32,11 +40,6 @@
     text-rendering: optimizeLegibility;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-}
-
-body {
-    margin: 0;
-    padding: 0;
 }
 
 .chart-div {
