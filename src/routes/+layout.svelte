@@ -6,5 +6,5 @@
 <Bar />
 
 <main>
-	<slot />	
+	<slot />
 </main>
