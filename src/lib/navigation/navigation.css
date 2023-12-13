@@ -1,12 +1,12 @@
 .left-side-nav {
-    width: 250px;
+    width: 9%;
     background-color: #333;
     color: #fff;
     position: fixed;
     top: 0;
-    left: -250px;
+    left: -50%;
     height: 100%;
-    transition: left 0.3s ease;
+    transition: left 0.5s ease-in-out;
 }
 
 .menu-button {
@@ -23,8 +23,9 @@
 
 nav {
     display: flex;
-    flex-direction: column;
+    align-items: flex-start;
     padding: 50px 0 0 0;
+    text-align: left;
 }
 
 ul {
@@ -39,10 +40,9 @@ a {
     text-decoration: none;
     color: #fff;
     font-weight: bold;
-    font-size: 16px;
 }
 
 /* Style for an open menu */
 .open {
-    left: 0;
+    left: 0%;
 }

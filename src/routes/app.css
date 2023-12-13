@@ -1,8 +1,9 @@
 main {
     padding: 20px;
-    margin-left: 5%;
-    margin-right: 5%;
+    margin-left: 2%;
+    margin-right: 2%;
     margin-top: auto;
+    transition: all 0.3s ease-in-out;
 }
 
 body {
@@ -44,4 +45,9 @@ body {
 
 .chart-div {
     margin: 0 auto;
+}
+
+.menu-open {
+    margin-left: 8%;
+
 }
