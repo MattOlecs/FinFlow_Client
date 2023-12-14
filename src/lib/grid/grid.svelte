@@ -1,7 +1,8 @@
 <script lang="ts" context="module">
-	import { BarChartSimple, DonutChart, type ChartTabularData } from '@carbon/charts-svelte';
+	import type { ChartTabularData } from '@carbon/charts-svelte';
 	import type { BaseChartOptions } from '@carbon/charts';
-	import type { SvelteComponent, SvelteComponentTyped } from 'svelte';
+	import '@carbon/charts-svelte/styles.css';
+	import { charts } from '../../stores/chartsStore';
 
 	export enum ChartType {
 		Donut,
@@ -13,28 +14,42 @@
 		Data: ChartTabularData;
 	}
 
-	let chartsDefinitions: ChartDefinition[] = [];
+	let data = [
+		{ group: 'Qty', value: 65000 },
+		{ group: 'More', value: 29123 },
+		{ group: 'Sold', value: 35213 },
+		{ group: 'Restocking', value: 51213 },
+		{ group: 'Misc', value: 16932 }
+	];
+	let chartsDefinitions: ChartDefinition[] = [
+		{
+			ChartType: ChartType.Donut,
+			Data: data
+		}
+	];
+	const chartsImport = await import('@carbon/charts-svelte');
 
 	export function addChart(chartDef: ChartDefinition) {
-		console.log(chartDef);
 		chartsDefinitions = [...chartsDefinitions, chartDef];
+		console.log(chartDef);
 		console.log(chartsDefinitions);
 	}
 
 	function generateChartType(chartDef: ChartDefinition) {
-		console.log('jestem tu');
+		console.log('jestem tu generateChartType');
 		switch (chartDef.ChartType) {
 			case ChartType.Donut:
-				return DonutChart;
+				return chartsImport.DonutChart;
 
 			case ChartType.Bar:
-				return BarChartSimple;
+				return chartsImport.BarChartSimple;
 			default:
-				return undefined;
+				return chartsImport.DonutChart;
 		}
 	}
 
 	function generateChartOptions(chartDef: ChartDefinition): BaseChartOptions {
+		console.log('jestem tu generateChartOptions');
 		switch (chartDef.ChartType) {
 			case ChartType.Donut:
 				return {
@@ -73,6 +88,18 @@
 </script>
 
 <div class="grid-container">
+	{#each chartsDefinitions as chart, i (i)}
+		<div class="chart-container">
+			<svelte:component
+				this={generateChartType(chart)}
+				data={chart.Data}
+				options={generateChartOptions(chart)}
+			/>
+		</div>
+	{/each}
+</div>
+
+<!-- <div class="grid-container">
 	<div class="chart-container">
 		<BarChartSimple
 			data={[
@@ -121,21 +148,7 @@
 			}}
 		/>
 	</div>
-</div>
-
-<!-- <div class="chart-container">
-	{#each chartsDefinitions as chart}
-		<div class="chart-container">
-			<svelte:component
-				this={generateChartType(chart)}
-				data={chart.Data}
-				options={generateChartOptions(chart)}
-			/>
-		</div>
-	{/each}
 </div> -->
-
-<p>{chartsDefinitions}</p>
 
 <style>
 	@import 'grid.css';
