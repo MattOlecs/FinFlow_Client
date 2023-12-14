@@ -1,0 +1,20 @@
+.grid-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    /* grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); */
+    gap: 20px;
+    text-align: left;
+}
+
+.chart-container {
+    display: inline-block;
+    /* border: 1px solid #ccc; */
+    /* top right bottom left */
+    padding: 10px 50px 10px 50px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(201, 199, 199, 0.1);
+}
+
+.chart-div {
+    margin: 0 auto;
+}
