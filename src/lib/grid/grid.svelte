@@ -1,8 +1,8 @@
 <script lang="ts" context="module">
 	import type { ChartTabularData } from '@carbon/charts-svelte';
 	import type { BaseChartOptions } from '@carbon/charts';
+	import { chartsDefinitions } from '../../stores/chartsStore';
 	import '@carbon/charts-svelte/styles.css';
-	import { charts } from '../../stores/chartsStore';
 
 	export enum ChartType {
 		Donut,
@@ -21,17 +21,11 @@
 		{ group: 'Restocking', value: 51213 },
 		{ group: 'Misc', value: 16932 }
 	];
-	let chartsDefinitions: ChartDefinition[] = [
-		{
-			ChartType: ChartType.Donut,
-			Data: data
-		}
-	];
+
 	const chartsImport = await import('@carbon/charts-svelte');
 
 	export function addChart(chartDef: ChartDefinition) {
-		chartsDefinitions = [...chartsDefinitions, chartDef];
-		console.log(chartDef);
+		chartsDefinitions.console.log(chartDef);
 		console.log(chartsDefinitions);
 	}
 

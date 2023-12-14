@@ -1,3 +1,4 @@
+import type { ChartDefinition } from '$lib/grid/grid.svelte';
 import { writable } from 'svelte/store';
 
-export const charts = writable([]);
+export const chartsDefinitions = writable<ChartDefinition[]>
