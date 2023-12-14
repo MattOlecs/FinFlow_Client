@@ -4,7 +4,7 @@
 		text: string;
 		similarity: number;
 	}
-	interface IAIReuslt {
+	interface IAIResult {
 		answer: string;
 		gotFromCache: boolean;
 	}
@@ -13,21 +13,21 @@
 		request: '',
 		length: 3
 	};
-	let aiRequest = {
-		prompt: '',
-		similarity: 1
-	};
 
 	let suggestionsResult: ISuggestionsResult[] = [];
-	let aiResult: IAIReuslt;
+	let aiResult: IAIResult = {
+		answer: '',
+		gotFromCache: false
+	};
+
 	let isSuggestionLoading = false;
 	let isGtpRequestLoading = false;
 	let showSuggestionsResult = false;
 
-	async function handleSuggestionsRequest() {
+	async function handleSuggestionsRequestAsync() {
 		isSuggestionLoading = true;
 		try {
-			const response = await fetch('https://localhost:7253/Sequences/similar/suggestions', {
+			const response = await fetch('https://localhost:7253/Sentences/similar/suggestions', {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json'
@@ -51,7 +51,7 @@
 		}
 	}
 
-	async function handleGtpRequest() {
+	async function handleGtpRequestAsync() {
 		try {
 			isGtpRequestLoading = true;
 			const response = await fetch('https://localhost:7253/Broker/chat-gpt', {
@@ -60,8 +60,7 @@
 					'Content-Type': 'application/json'
 				},
 				body: JSON.stringify({
-					prompt: suggestionsRequest.request,
-					similarity: aiRequest.prompt
+					prompt: suggestionsRequest.request
 				})
 			});
 
@@ -76,16 +75,33 @@
 			isGtpRequestLoading = false;
 		}
 	}
+
+	async function getSuggestedAnswerAsync(item: ISuggestionsResult) {
+		try {
+			const response = await fetch(`https://localhost:7253/Sentences/${item.id}`, {
+				method: 'GET'
+			});
+
+			let parsedResponse = await response.json();
+			aiResult.answer = parsedResponse.text;
+		} catch (error) {
+			console.error('Error:', error);
+		}
+	}
 </script>
 
 <h1>COLLM communication</h1>
 
-<form on:submit|preventDefault={handleSuggestionsRequest}>
+<form on:submit|preventDefault={handleSuggestionsRequestAsync}>
 	<label for="prompt">Enter a prompt:</label>
 	<input
 		type="text"
 		id="prompt"
 		bind:value={suggestionsRequest.request}
+		on:keypress={() => {
+			showSuggestionsResult = false;
+			suggestionsResult = [];
+		}}
 		placeholder="Type your prompt here"
 	/>
 	<button type="submit" disabled={isSuggestionLoading}>
@@ -98,15 +114,23 @@
 		<h2>Did you mean?:</h2>
 		<ul>
 			{#each suggestionsResult as item (item)}
-				<li>{item.text} (similarity = {item.similarity})</li>
+				<li>
+					<a href="/" on:click|preventDefault={() => getSuggestedAnswerAsync(item)}>
+						{item.text} (similarity = {item.similarity})
+					</a>
+				</li>
 			{/each}
 		</ul>
 	</div>
 
-	<form on:submit|preventDefault={handleGtpRequest}>
+	<form on:submit|preventDefault={handleGtpRequestAsync}>
 		<button type="submit" disabled={isGtpRequestLoading}>
 			{isGtpRequestLoading ? 'Loading...' : 'Suggestions do not match request'}
 		</button>
-		<span>{aiResult.answer}</span>
 	</form>
+
+	<div>
+		<h3>Answer:</h3>
+		<span>{aiResult.answer}</span>
+	</div>
 {/if}
