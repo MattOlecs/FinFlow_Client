@@ -1,6 +1,6 @@
 <script lang="ts" context="module">
 	import type { ChartTabularData } from '@carbon/charts-svelte';
-	import type { BaseChartOptions } from '@carbon/charts';
+	import { type BaseChartOptions, Alignments, ChartTheme } from '@carbon/charts';
 	import { chartsDefinitions } from '../../stores/chartsStore';
 	import '@carbon/charts-svelte/styles.css';
 
@@ -50,7 +50,7 @@
 					title: 'Donut',
 					resizable: true,
 					legend: {
-						alignment: 'center'
+						alignment: Alignments.CENTER
 					},
 					donut: {
 						center: {
@@ -60,12 +60,12 @@
 					},
 					height: '100%',
 					width: '100%',
-					theme: 'g100'
+					theme: ChartTheme.G100
 				};
 
 			case ChartType.Bar:
 				return {
-					theme: 'g90',
+					theme: ChartTheme.G90,
 					title: 'Simple bar (discrete)',
 					height: '400px',
 					axes: {
