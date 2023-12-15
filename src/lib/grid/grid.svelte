@@ -25,7 +25,7 @@
 	const chartsImport = await import('@carbon/charts-svelte');
 
 	export function addChart(chartDef: ChartDefinition) {
-		chartsDefinitions.console.log(chartDef);
+		chartsDefinitions.update((charts) => [...charts, chartDef]);
 		console.log(chartsDefinitions);
 	}
 
@@ -82,7 +82,7 @@
 </script>
 
 <div class="grid-container">
-	{#each chartsDefinitions as chart, i (i)}
+	{#each $chartsDefinitions as chart, i (i)}
 		<div class="chart-container">
 			<svelte:component
 				this={generateChartType(chart)}
