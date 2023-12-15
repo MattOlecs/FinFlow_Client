@@ -1,6 +1,7 @@
 <script lang="ts">
 	import Grid, { addChart } from '$lib/grid/grid.svelte';
 	import { ChartType, type ChartDefinition } from '$lib/grid/grid.svelte';
+	import DataGrid from '$lib/data-grid/data-grid.svelte';
 
 	let gridComponent: Grid;
 
@@ -22,6 +23,8 @@
 </script>
 
 <Grid bind:this={gridComponent} />
+
+<DataGrid />
 
 <button on:click|preventDefault={addDonutChart}>add donut</button>
 <button on:click|preventDefault={addBarChart}>add bar</button>
