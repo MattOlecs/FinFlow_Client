@@ -1,9 +1,9 @@
 <script lang="ts">
-	import Grid, { addChart } from '$lib/grid/grid.svelte';
+	import ChartsGrid, { addChart } from '$lib/grid/grid.svelte';
 	import { ChartType, type ChartDefinition } from '$lib/grid/grid.svelte';
+	import DataGrid from '$lib/data-grid/data-grid.svelte';
 
-	let gridComponent: Grid;
-
+	let gridComponent: ChartsGrid;
 	let data = [
 		{ group: 'Qty', value: 65000 },
 		{ group: 'More', value: 29123 },
@@ -21,7 +21,9 @@
 	}
 </script>
 
-<Grid bind:this={gridComponent} />
+<ChartsGrid bind:this={gridComponent} />
 
 <button on:click|preventDefault={addDonutChart}>add donut</button>
 <button on:click|preventDefault={addBarChart}>add bar</button>
+
+<DataGrid />
