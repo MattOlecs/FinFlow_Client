@@ -2,6 +2,7 @@
 	import { onMount, onDestroy } from 'svelte';
 	import { GridApi, createGrid } from 'ag-grid-community';
 	import type { GridOptions } from 'ag-grid-community';
+	import type { IDataRow } from './DataSchemes';
 	import '@ag-grid-community/styles/ag-grid.css';
 	import '@ag-grid-community/styles/ag-theme-alpine.css';
 	import '@ag-grid-community/styles/ag-theme-quartz.css';
