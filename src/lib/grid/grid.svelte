@@ -6,7 +6,8 @@
 
 	export enum ChartType {
 		Donut,
-		Bar
+		Bar,
+		Gauge
 	}
 
 	export interface ChartDefinition {
@@ -30,13 +31,13 @@
 	}
 
 	function generateChartType(chartDef: ChartDefinition) {
-		console.log('jestem tu generateChartType');
 		switch (chartDef.ChartType) {
 			case ChartType.Donut:
 				return chartsImport.DonutChart;
-
 			case ChartType.Bar:
 				return chartsImport.BarChartSimple;
+			case ChartType.Gauge:
+				return chartsImport.GaugeChart;
 			default:
 				return chartsImport.DonutChart;
 		}
@@ -60,17 +61,34 @@
 					},
 					height: '100%',
 					width: '100%',
-					theme: ChartTheme.G100
+					theme: ChartTheme.WHITE
 				};
 
 			case ChartType.Bar:
 				return {
-					theme: ChartTheme.G90,
+					theme: ChartTheme.WHITE,
 					title: 'Simple bar (discrete)',
 					height: '400px',
 					axes: {
 						left: { mapsTo: 'value' },
 						bottom: { mapsTo: 'group', scaleType: 'labels' }
+					}
+				};
+
+			case ChartType.Gauge:
+				return {
+					theme: ChartTheme.WHITE,
+					title: 'Gauge',
+					resizable: true,
+
+					gauge: {
+						type: 'semi',
+						alignment: 'center'
+					},
+					color: {
+						scale: {
+							value: '#FFE5B4'
+						}
 					}
 				};
 
