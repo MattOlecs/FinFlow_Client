@@ -2,6 +2,7 @@
 	import ChartsGrid, { addChart } from '$lib/grid/grid.svelte';
 	import { ChartType, type ChartDefinition } from '$lib/grid/grid.svelte';
 	import DataGrid from '$lib/data-grid/data-grid.svelte';
+	import { onMount } from 'svelte';
 
 	let gridComponent: ChartsGrid;
 	let data = [
@@ -12,6 +13,13 @@
 		{ group: 'Misc', value: 16932 }
 	];
 
+	let gaugeData = [
+		{
+			group: 'value',
+			value: 67
+		}
+	];
+
 	function addDonutChart() {
 		addChart({ ChartType: ChartType.Donut, Data: data });
 	}
@@ -19,11 +27,21 @@
 	function addBarChart() {
 		addChart({ ChartType: ChartType.Bar, Data: data });
 	}
+
+	function addGaugeChart() {
+		addChart({ ChartType: ChartType.Gauge, Data: gaugeData });
+	}
+
+	onMount(() => {
+		addGaugeChart();
+		addDonutChart();
+		addBarChart();
+	});
 </script>
 
 <ChartsGrid bind:this={gridComponent} />
 
-<button on:click|preventDefault={addDonutChart}>add donut</button>
-<button on:click|preventDefault={addBarChart}>add bar</button>
+<!-- <button on:click|preventDefault={addDonutChart}>add donut</button>
+<button on:click|preventDefault={addBarChart}>add bar</button> -->
 
 <DataGrid />

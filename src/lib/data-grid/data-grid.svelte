@@ -47,4 +47,4 @@
 	});
 </script>
 
-<div class="ag-theme-quartz-dark" bind:this={gridDiv} style="height: 500px; width: 100%"></div>
+<div class="ag-theme-quartz" bind:this={gridDiv} style="height: 500px; width: 100%"></div>

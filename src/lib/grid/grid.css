@@ -3,7 +3,8 @@
     /* grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1fr); */
     grid-template-columns: auto auto auto;
     gap: 20px;
-    text-align: left;
+    text-align: right;
+    padding-bottom: 2%;
 }
 
 .chart-container {
@@ -11,6 +12,7 @@
     padding: 10px 50px 10px 50px;
     border-radius: 8px;
     box-shadow: 0 4px 8px rgba(201, 199, 199, 0.1);
+    background-color: #b6b5b5;
 }
 
 .chart-div {
