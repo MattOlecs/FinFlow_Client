@@ -4,6 +4,7 @@
 	import DataGrid from '$lib/data-grid/data-grid.svelte';
 	import { onMount } from 'svelte';
 	import DatePicker from '$lib/date picker/date-picker.svelte';
+	import AddMenu from '$lib/add-menu/add-menu.svelte';
 
 	let gridComponent: ChartsGrid;
 	let data = [
@@ -48,3 +49,5 @@
 <button on:click|preventDefault={addBarChart}>add bar</button> -->
 
 <DataGrid />
+
+<AddMenu />
