@@ -1,0 +1,7 @@
+.date-picker-main {
+    display: flex;
+    align-items: center;
+    /* Adjusts items vertically. Use 'end' if you specifically want them aligned to the bottom. */
+    justify-content: flex-end;
+    padding-bottom: 1%;
+}
