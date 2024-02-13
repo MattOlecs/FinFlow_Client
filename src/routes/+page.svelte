@@ -3,6 +3,7 @@
 	import { ChartType, type ChartDefinition } from '$lib/grid/grid.svelte';
 	import DataGrid from '$lib/data-grid/data-grid.svelte';
 	import { onMount } from 'svelte';
+	import DatePicker from '$lib/date picker/date-picker.svelte';
 
 	let gridComponent: ChartsGrid;
 	let data = [
@@ -38,6 +39,8 @@
 		addBarChart();
 	});
 </script>
+
+<DatePicker yearRange={30} />
 
 <ChartsGrid bind:this={gridComponent} />
 
