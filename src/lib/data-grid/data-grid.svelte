@@ -2,38 +2,33 @@
 	import { onMount, onDestroy } from 'svelte';
 	import { GridApi, createGrid } from 'ag-grid-community';
 	import type { GridOptions } from 'ag-grid-community';
-	import type { IDataRow } from './DataSchemes';
 	import '@ag-grid-community/styles/ag-grid.css';
 	import '@ag-grid-community/styles/ag-theme-alpine.css';
 	import '@ag-grid-community/styles/ag-theme-quartz.css';
+	import dataStoreInstance from '$lib/data/dataStore';
 
 	let gridDiv: HTMLDivElement;
-	let gridApi: GridApi;
+	export let gridApi: GridApi;
 
 	const columnDefs = [
-		{ headerName: 'Description', field: 'description', filter: true },
-		{ headerName: 'Category', field: 'category' },
-		{ headerName: 'Type', field: 'type' },
-		{ headerName: 'Amount', field: 'amount' }
+		{ headerName: 'Description', field: 'Description', filter: true },
+		{ headerName: 'Category', field: 'Category' },
+		{ headerName: 'Type', field: 'Type' },
+		{ headerName: 'Amount', field: 'Amount' }
 	];
 
-	const rowData = [
-		{ description: 'Groceries', category: 'Basic expanses', type: 'Expenditure', amount: 240.16 },
-		{ description: 'University tuition', category: 'Education', type: 'Expenditure', amount: 2000 },
-		{ description: 'Paycheck', category: 'Basic income', type: 'Income', amount: 6598.34 },
-		{
-			description: 'Car payment',
-			category: 'Car and transportation',
-			type: 'Expenditure',
-			amount: 829.22
-		}
-	];
-
+	let rowData = dataStoreInstance.getGridData();
 	let gridOptions: GridOptions = {
 		columnDefs,
 		rowData
 		// Add other grid options as needed
 	};
+
+	export function refreshGrid(): void {
+		let test = dataStoreInstance.getGridData();
+        gridOptions.rowData = dataStoreInstance.getGridData();
+		gridApi.updateGridOptions(gridOptions);
+    }
 
 	onMount(() => {
 		gridApi = createGrid(gridDiv, gridOptions);

@@ -30,6 +30,20 @@
 		console.log(chartsDefinitions);
 	}
 
+	export function refreshCharts(data: ChartTabularData) {
+    chartsDefinitions.update(charts =>
+        charts.map(chart => {
+            if (chart.ChartType != ChartType.Gauge) {
+                // Spread the chart object and update Data property
+                return { ...chart, Data: data };
+            } else {
+                // Return the chart as is if the condition is not met
+                return chart;
+            }
+        })
+    );
+}
+
 	function generateChartType(chartDef: ChartDefinition) {
 		switch (chartDef.ChartType) {
 			case ChartType.Donut:
@@ -55,7 +69,8 @@
 					},
 					donut: {
 						center: {
-							label: 'Browsers'
+							label: 'Wydatki',
+							numberFormatter: ((value) => value.toFixed(2) + " zł")
 						},
 						alignment: 'center'
 					},
@@ -110,57 +125,6 @@
 		</div>
 	{/each}
 </div>
-
-<!-- <div class="grid-container">
-	<div class="chart-container">
-		<BarChartSimple
-			data={[
-				{ group: 'Qty', value: 65000 },
-				{ group: 'More', value: 29123 },
-				{ group: 'Sold', value: 35213 },
-				{ group: 'Restocking', value: 51213 },
-				{ group: 'Misc', value: 16932 }
-			]}
-			options={{
-				theme: 'g90',
-				title: 'Simple bar (discrete)',
-				height: '400px',
-				axes: {
-					left: { mapsTo: 'value' },
-					bottom: { mapsTo: 'group', scaleType: 'labels' }
-				}
-			}}
-		/>
-	</div>
-
-	<div class="chart-container">
-		<DonutChart
-			data={[
-				{ group: 'Qty', value: 65000 },
-				{ group: 'More', value: 29123 },
-				{ group: 'Sold', value: 35213 },
-				{ group: 'Restocking', value: 51213 },
-				{ group: 'Misc', value: 16932 }
-			]}
-			options={{
-				title: 'Donut',
-				resizable: true,
-				legend: {
-					alignment: 'center'
-				},
-				donut: {
-					center: {
-						label: 'Browsers'
-					},
-					alignment: 'center'
-				},
-				height: '400px',
-				width: '400px',
-				theme: 'g100'
-			}}
-		/>
-	</div>
-</div> -->
 
 <style>
 	@import 'grid.css';
