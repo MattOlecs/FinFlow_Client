@@ -1,136 +1,163 @@
 <script lang="ts">
+	import raportGenerator from '$lib/data/raportGenerator';
+
 	interface ISuggestionsResult {
-		id: number;
-		text: string;
-		similarity: number;
+	id: number;
+	text: string;
+	similarity: number;
 	}
+
 	interface IAIResult {
 		answer: string;
 		gotFromCache: boolean;
 	}
 
-	let suggestionsRequest = {
-		request: '',
-		length: 3
-	};
-
-	let suggestionsResult: ISuggestionsResult[] = [];
-	let aiResult: IAIResult = {
-		answer: '',
-		gotFromCache: false
-	};
-
-	let isSuggestionLoading = false;
-	let isGtpRequestLoading = false;
-	let showSuggestionsResult = false;
-
-	async function handleSuggestionsRequestAsync() {
-		isSuggestionLoading = true;
-		try {
-			const response = await fetch('https://localhost:7253/Sentences/similar/suggestions', {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json'
-				},
-				body: JSON.stringify({
-					request: suggestionsRequest.request,
-					length: suggestionsRequest.length
-				})
-			});
-
-			if (response.ok) {
-				suggestionsResult = await response.json();
-				showSuggestionsResult = true;
-			} else {
-				console.error('Failed to fetch data');
-			}
-		} catch (error) {
-			console.error('Error:', error);
-		} finally {
-			isSuggestionLoading = false;
-		}
+	interface IMessage {
+		text: string,
+		sender: string
 	}
+	
+	let suggestionsResult: ISuggestionsResult[] = [];
+	let message = "";
+	let messages: IMessage[] = [];
 
-	async function handleGtpRequestAsync() {
+	let aiPrompt = "Jesteś doradcą finansowym w aplikacji. Będzie teraz prowadził rozmowę z użytkownikiem na podstawie jego raportu wydatków i przychodów za wskazany miesiąc. Nie możesz rozmawiać na inne tematy niż porady finansowe. Jako odpowiedź na to pytanie, oceń jego raport wydatków. Nie odnoś się do tej wstępnej instrukcji. Oto raport: "
+
+	let isInFirstAnswer: boolean = true;
+	let isInSuggestionMode: boolean = false;
+	let isInGptMode: boolean = false;
+  
+	async function sendMessage() {
+	  	if (message.trim() === "") return;
+  
+		if (isInFirstAnswer) {
+			let chatGptResponse = fetchGptResponse(aiPrompt + raportGenerator.getRaport())
+			messages = [...messages, { text: (await chatGptResponse).answer, sender: "api" }];
+			isInFirstAnswer = false;
+		}
+		else{
+			const userMessage = { text: message, sender: "user" };
+			messages = [...messages, userMessage];
+		
+			const apiResponse = await fetchSuggestions(message);
+		}
+		
+		message = ""; // Reset input after sending
+	}
+  
+
+	async function fetchGptResponse(userMessage: string): Promise<IAIResult> {
+		
+		let aiResult;
 		try {
-			isGtpRequestLoading = true;
-			const response = await fetch('https://localhost:7253/Broker/chat-gpt', {
+			const response = await fetch('http://localhost:5295/Broker/chat-gpt', {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json'
 				},
 				body: JSON.stringify({
-					prompt: suggestionsRequest.request
+					prompt: userMessage
 				})
 			});
 
 			if (response.ok) {
 				aiResult = await response.json();
+				return aiResult;
 			} else {
 				console.error('Failed to fetch data');
 			}
 		} catch (error) {
 			console.error('Error:', error);
-		} finally {
-			isGtpRequestLoading = false;
 		}
+
+		return aiResult;
 	}
 
-	async function getSuggestedAnswerAsync(item: ISuggestionsResult) {
-		try {
-			const response = await fetch(`https://localhost:7253/Sentences/${item.id}`, {
-				method: 'GET'
+	async function fetchSuggestions(userMessage: string) {
+	  	try {
+			const response = await fetch('http://localhost:5295/Sentences/similar/suggestions', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify({
+					request: userMessage,
+					length: userMessage.length
+				})
 			});
 
-			let parsedResponse = await response.json();
-			aiResult.answer = parsedResponse.text;
+			if (response.ok) {
+				suggestionsResult = await response.json();
+			} else {
+				console.error('Failed to fetch data');
+			}
 		} catch (error) {
-			console.error('Error:', error);
-		}
+			console.error("Error fetching API:", error);
+			return "Failed to get response.";
+	  }
 	}
 </script>
-
-<h1>COLLM communication</h1>
-
-<form on:submit|preventDefault={handleSuggestionsRequestAsync}>
-	<label for="prompt">Enter a prompt:</label>
-	<input
-		type="text"
-		id="prompt"
-		bind:value={suggestionsRequest.request}
-		on:keypress={() => {
-			showSuggestionsResult = false;
-			suggestionsResult = [];
-		}}
-		placeholder="Type your prompt here"
-	/>
-	<button type="submit" disabled={isSuggestionLoading}>
-		{isSuggestionLoading ? 'Loading...' : 'Submit'}
-	</button>
-</form>
-
-{#if showSuggestionsResult}
-	<div>
-		<h2>Did you mean?:</h2>
-		<ul>
-			{#each suggestionsResult as item (item)}
-				<li>
-					<a href="/" on:click|preventDefault={() => getSuggestedAnswerAsync(item)}>
-						{item.text} (similarity = {item.similarity})
-					</a>
-				</li>
-			{/each}
-		</ul>
+  
+<main>
+	<div class="chat-container">
+		{#each messages as { text, sender }}
+		<div class={sender}>
+			{text}
+		</div>
+		{/each}
 	</div>
-
-	<form on:submit|preventDefault={handleGtpRequestAsync}>
-		<button type="submit" disabled={isGtpRequestLoading}>
-			{isGtpRequestLoading ? 'Loading...' : 'Suggestions do not match request'}
-		</button>
-	</form>
-
-	<div>
-		<h3>Answer:</h3>
-		<span>{aiResult.answer}</span>
+	<div class="input-container">
+		<input
+			type="text"
+			bind:value={message}
+			on:keydown={e => e.key === 'Enter' && sendMessage()}
+		/>
+		<button on:click={sendMessage}>Send</button>
 	</div>
-{/if}
+</main>
+  
+<style>
+	.chat-container {
+		max-width: 100%;
+		margin: 20px auto;
+		padding: 10px;
+		height: 300px;
+		overflow-y: auto;
+		color: black;
+		border-radius: 8px;
+		box-shadow: 0 4px 8px rgba(201, 199, 199, 0.1);
+		background-color: #b6b5b5;
+	}
+	.user {
+		text-align: right;
+		padding: 5px;
+		margin: 2px;
+		background-color: #f0f0f0;
+		border-radius: 8px;
+		width: 49%;
+		margin-inline-start: auto;
+	}
+	.api {
+		text-align: left;
+		padding: 5px;
+		margin: 2px;
+		background-color: #d1e7dd;
+		border-radius: 8px;
+		width: 49%;
+		margin-inline-end: auto;
+	}
+	.input-container {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+	}
+	input, button {
+		margin: 10px 15px;
+		padding: 10px;
+		width: 75%;
+	}
+	button {
+		width: 10%;
+	}
+</style>
+  
