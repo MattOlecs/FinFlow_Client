@@ -1,3 +1,6 @@
+import { selectedYear, selectedMonth } from './dateStore';
+import { get } from 'svelte/store';
+
 export interface GridData {
     Description: string,
     Category: string,
@@ -15,31 +18,58 @@ class DataStore {
     private categories = ['Wydatki podstawowe', 'Edukacja', 'Transport'];
 
     constructor() {
-        this.gridDataList = [
-            { Description: 'Zakupy spożywcze', Category: 'Wydatki podstawowe', Type: 'Wydatek', Amount: 240.16 },
-            { Description: 'Opłata za studia', Category: 'Edukacja', Type: 'Wydatek', Amount: 2000 },
-            { Description: 'Wypłata marzec', Category: 'Przychód podstawowy', Type: 'Przychód', Amount: 6598.36 },
-            { Description: 'Rata za samochód', Category: 'Transport', Type: 'Wydatek', Amount: 829.22 },
-            { Description: 'Paliwo', Category: 'Transport', Type: 'Wydatek', Amount: 199.98 },
-            { Description: 'Czynsz', Category: 'Mieszkanie', Type: 'Wydatek', Amount: 1500.00 },
-            { Description: 'Rachunek za prąd', Category: 'Mieszkanie', Type: 'Wydatek', Amount: 242.34 },
-            { Description: 'Ogrzewanie', Category: 'Mieszkanie', Type: 'Wydatek', Amount: 120.66 },
-            { Description: 'Internet', Category: 'Mieszkanie', Type: 'Wydatek', Amount: 78.99 },
-        ];
+        this.gridDataList = [];
     }
 
     addGridData(data: GridData): void {
         this.gridDataList.push(data)
     }
 
-    getGridData(): GridData[] {
-        return this.gridDataList;
+    async getGridData(): Promise<GridData[]> {
+
+        const year = get(selectedYear);
+        const month = get(selectedMonth);
+        const date = new Date(year, month, 1);
+        console.log('selected datetime: ' + date.toISOString);
+
+        let gridData;
+		try {
+			const response = await fetch('http://localhost:5273/transaction-records/search', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify({
+					date: date.toISOString()
+				})
+			});
+
+			if (response.ok) {
+                const data = await response.json();
+                console.log(data);
+                gridData = data.map((item: any) => ({
+                    Description: item.description,
+                    Category: item.categoryName,
+                    Type: item.transactionRecordType === 2 ? 'Wydatek' : 'Przychód',
+                    Amount: item.amount
+                }));
+                this.gridDataList = gridData
+                return gridData;
+			} else {
+				console.error('Failed to fetch data');
+			}
+		} catch (error) {
+			console.error('Error:', error);
+		}
+
+		return gridData;
     }
 
-    getAggregatedData(): AggregatedData[] {
+    async getAggregatedData(): Promise<AggregatedData[]> {
+        let gridData: GridData[] = await this.getGridData();
         const aggregatedData: Record<string, number> = {};
 
-        this.gridDataList
+        gridData
             .filter(item => item.Type === 'Wydatek')
             .forEach(item => {
                 if (aggregatedData[item.Category]) {
@@ -54,6 +84,7 @@ class DataStore {
             Value: value
         }));
 
+        console.log('agg list: ' + aggregatedList.length)
         return aggregatedList;
     }
 

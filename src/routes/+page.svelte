@@ -8,14 +8,15 @@
 	import AddMenu from '$lib/add-menu/add-menu.svelte';
 	import dataStoreInstance from '$lib/data/dataStore';
 	import type { ChartTabularData } from '@carbon/charts-svelte';
-	import { get } from 'svelte/store';
+	import { selectedYear, selectedMonth } from '$lib/data/dateStore';
 
 	let gridComponent: ChartsGrid;
 	let dataGridApi: GridApi;
-	let refreshGrid: () => void;
+	let refreshGrid: () => Promise<void>;
 
-	function getData() {
-		let data: ChartTabularData = dataStoreInstance.getAggregatedData().map(data => {
+	async function getData() {
+		let aggData = await dataStoreInstance.getAggregatedData();
+		let data: ChartTabularData = aggData.map(data => {
 			return {
 				group: data.Group,
 				value: data.Value
@@ -32,20 +33,20 @@
 		}
 	];
 
-	function addDonutChart() {
-		addChart({ ChartType: ChartType.Donut, Data: getData() });
+	async function addDonutChart() {
+		addChart({ ChartType: ChartType.Donut, Data: await getData() });
 	}
 
-	function addBarChart() {
-		addChart({ ChartType: ChartType.Bar, Data: getData() });
+	async function addBarChart() {
+		addChart({ ChartType: ChartType.Bar, Data: await getData() });
 	}
 
-	function addGaugeChart() {
+	async function addGaugeChart() {
 		addChart({ ChartType: ChartType.Gauge, Data: gaugeData });
 	}
 
-	function refreshGrids() {
-		refreshCharts(getData());
+	async function refreshGrids() {
+		refreshCharts(await getData());
 	}
 
 	onMount(() => {
@@ -53,14 +54,28 @@
 		addDonutChart();
 		addBarChart();
 	});
+
+
+	selectedYear.subscribe(value => {
+		console.log('Refreshing components on year change', value);
+		refreshGrids();
+		if (refreshGrid) {
+			refreshGrid();
+		}
+	});
+
+	selectedMonth.subscribe(value => {
+		console.log('Refreshing components on month change', value);
+		refreshGrids();
+		if (refreshGrid) {
+			refreshGrid();
+		}
+	});
 </script>
 
 <DatePicker yearRange={30} />
 
 <ChartsGrid bind:this={gridComponent} />
-
-<!-- <button on:click|preventDefault={addDonutChart}>add donut</button>
-<button on:click|preventDefault={addBarChart}>add bar</button> -->
 
 <DataGrid bind:gridApi={dataGridApi} bind:refreshGrid={refreshGrid}/>
 
