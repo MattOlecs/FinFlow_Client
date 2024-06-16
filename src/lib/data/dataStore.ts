@@ -5,12 +5,18 @@ export interface GridData {
     Description: string,
     Category: string,
     Type: string,
-    Amount: number
+    Amount: number,
+    CategoryId: number
 }
 
 export interface AggregatedData {
     Group: string,
     Value: number
+}
+
+export interface Category {
+    Id: number,
+    Name: string
 }
 
 class DataStore {
@@ -21,15 +27,37 @@ class DataStore {
         this.gridDataList = [];
     }
 
-    addGridData(data: GridData): void {
-        this.gridDataList.push(data)
+    async addGridData(data: GridData): Promise<void> {
+        try {
+			const response = await fetch('http://localhost:5273/transaction-records', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify({
+					description: data.Description,
+                    transactionRecordType: data.Type == 'Wydatek'? 2 : 1,
+                    amount: data.Amount,
+                    categoryId: data.CategoryId,
+                    date: (new Date()).toISOString(),
+				})
+			});
+
+			if (response.ok) {
+                console.log('data added');
+			} else {
+				console.error('Failed to fetch data');
+			}
+		} catch (error) {
+			console.error('Error:', error);
+		}
     }
 
     async getGridData(): Promise<GridData[]> {
 
         const year = get(selectedYear);
         const month = get(selectedMonth);
-        const date = new Date(year, month, 1);
+        const date = new Date(year, month + 1, 1);
         console.log('selected datetime: ' + date.toISOString);
 
         let gridData;
@@ -88,14 +116,62 @@ class DataStore {
         return aggregatedList;
     }
 
-    addCategory(category: string) {
-        this.categories.push(category);
-        console.log("kategorie:")
-        console.log(this.categories)
+    async addCategory(category: Category): Promise<Category> {
+        try {
+			const response = await fetch('http://localhost:5273/transaction-category', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify({
+					Name: category.Name
+				})
+			});
+
+			if (response.ok) {
+                console.log('category added');
+                const data = await response.json();
+                category.Id = data.id;
+
+                return category;
+			} else {
+				console.error('Failed to fetch data');
+			}
+		} catch (error) {
+			console.error('Error:', error);
+		}
+        
+        return category;
     }
 
-    getCategories(): string[] {
-        return this.categories;
+    async getCategories(): Promise<Category[]> {
+        let categories: Category[] = [];
+		try {
+			const response = await fetch('http://localhost:5273/transaction-category/search', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify({
+				})
+			});
+
+			if (response.ok) {
+                const data = await response.json();
+                console.log('data:' + data);
+                categories = data.map((item: any) => ({
+                    Id: item.id,
+                    Name: item.name
+                }));
+                return categories;
+			} else {
+				console.error('Failed to fetch data');
+			}
+		} catch (error) {
+			console.error('Error:', error);
+		}
+
+        return categories;
     }
 
 }
