@@ -5,7 +5,7 @@
 	import '@ag-grid-community/styles/ag-grid.css';
 	import '@ag-grid-community/styles/ag-theme-alpine.css';
 	import '@ag-grid-community/styles/ag-theme-quartz.css';
-	import dataStoreInstance from '$lib/data/dataStore';
+	import dataStoreInstance, { type GridData } from '$lib/data/dataStore';
 
 	let gridDiv: HTMLDivElement;
 	export let gridApi: GridApi;
@@ -17,22 +17,28 @@
 		{ headerName: 'Amount', field: 'Amount' }
 	];
 
-	let rowData = dataStoreInstance.getGridData();
 	let gridOptions: GridOptions = {
 		columnDefs,
-		rowData
-		// Add other grid options as needed
+		rowData: []
 	};
 
-	export function refreshGrid(): void {
-		let test = dataStoreInstance.getGridData();
-        gridOptions.rowData = dataStoreInstance.getGridData();
+	async function initializeGridData() {
+		const rowData = await dataStoreInstance.getGridData();
+		console.log("2 --" + rowData[0].Amount);
+		gridOptions.rowData = rowData;
+		gridApi = createGrid(gridDiv, gridOptions);
+		gridApi.sizeColumnsToFit();
+	}
+
+	export async function refreshGrid(): Promise<void> {
+		let data = await dataStoreInstance.getGridData();
+		console.log("1 " + data);
+        gridOptions.rowData = data
 		gridApi.updateGridOptions(gridOptions);
     }
 
 	onMount(() => {
-		gridApi = createGrid(gridDiv, gridOptions);
-		gridApi.sizeColumnsToFit();
+		initializeGridData(); 
 	});
 
 	onDestroy(() => {

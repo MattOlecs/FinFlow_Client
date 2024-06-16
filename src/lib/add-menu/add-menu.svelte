@@ -1,6 +1,8 @@
 <!-- AddExpenditure.svelte -->
 <script lang="ts">
+	import { onMount } from 'svelte';
 	import dataStoreInstance from '$lib/data/dataStore';
+	import type { Category } from '$lib/data/dataStore';
 	export let actionOnsubmit: () => void;
 
 	let showModal = false;
@@ -8,24 +10,31 @@
 	let type = '';
 	let amount = '';
 	let customCategoryEnabled = false;
-	
+	let categories: Category[] = [];
+	let category: Category = { Id: 0, Name: '' }; 
 	
 	const types = ['Wydatek', 'Przychód'];
-	let categories = dataStoreInstance.getCategories()
 
-	let category = categories[0];
-
-	function submitForm() {
-		console.log({ description, category, type, amount });
+	async function submitForm() {
 		showModal = false;
 
-		if (categories.find(x => x == category) == null){
-			dataStoreInstance.addCategory(category)
+		let existingCategory = categories.find(x => x.Name == category.Name);
+
+		if (existingCategory == null){
+			category = await dataStoreInstance.addCategory(category)
+		} else {
+			category = existingCategory;
 		}
 
-		dataStoreInstance.addGridData({Description: description, Category: category, Type: type, Amount: +amount})
+		console.log('cateogryId: ' + category.Id)
+		await dataStoreInstance.addGridData({Description: description, Category: category.Name, CategoryId: category.Id, Type: type, Amount: +amount})
 		actionOnsubmit();
 	}
+
+	onMount(async () => {
+		categories = await dataStoreInstance.getCategories();
+		console.log('categories: - ' + categories[0].Id)
+	});
 </script>
 
 <div class="add-button">
@@ -44,11 +53,11 @@
                 {#if !customCategoryEnabled}
                     <select id="category" bind:value={category}>
                         {#each categories as cat}
-                            <option value={cat}>{cat}</option>
+                            <option value={cat}>{cat.Name}</option>
                         {/each}
                     </select>
                 {:else}
-                    <input id="category" type="text" bind:value={category} />
+                    <input id="category" type="text" bind:value={category.Name} />
                 {/if}
                 <label>
                     <input type="checkbox" bind:checked={customCategoryEnabled} />
