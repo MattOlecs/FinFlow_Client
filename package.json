@@ -31,6 +31,11 @@
 	"type": "module",
 	"dependencies": {
 		"@ag-grid-community/styles": "^31.0.1",
-		"ag-grid-community": "^31.0.1"
+		"@smui/button": "^7.0.0-beta.18",
+		"@smui/card": "^7.0.0-beta.18",
+		"@smui/list": "^7.0.0-beta.18",
+		"@smui/textfield": "^7.0.0-beta.18",
+		"ag-grid-community": "^31.0.1",
+		"deep-chat": "^1.4.11"
 	}
 }

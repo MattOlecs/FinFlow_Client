@@ -31,16 +31,16 @@
 	}
 
 	export function refreshCharts(data: ChartTabularData) {
-    chartsDefinitions.update(charts =>
-        charts.map(chart => {
-            if (chart.ChartType != ChartType.Gauge) {
-                // Spread the chart object and update Data property
-                return { ...chart, Data: data };
-            } else {
-                // Return the chart as is if the condition is not met
-                return chart;
-            }
-        })
+		chartsDefinitions.update(charts =>
+			charts.map(chart => {
+				if (chart.ChartType != ChartType.Gauge) {
+					// Spread the chart object and update Data property
+					return { ...chart, Data: data };
+				} else {
+					// Return the chart as is if the condition is not met
+					return chart;
+				}
+			})
     );
 }
 
